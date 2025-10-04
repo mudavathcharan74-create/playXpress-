@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayXpress</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow: rgba(0, 255, 255, 0.7);
+            --secondary-glow: rgba(159, 0, 255, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0e0e0e;
+            background-image:
+                radial-gradient(circle at top left, rgba(159, 0, 255, 0.2), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(0, 255, 255, 0.2), transparent 30%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- Global Styles --- */
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 2rem auto;
+        }
+
+        h1, h2 {
+            background: linear-gradient(90deg, #ff00ff, #9f00ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .glass-container {
+            background: rgba(20, 20, 30, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-glow);
+            color: var(--primary-glow);
+            box-shadow: 0 0 5px var(--primary-glow), 0 0 10px var(--primary-glow) inset;
+        }
+
+        .btn-solid {
+            background: linear-gradient(90deg, #ff00ff, #9f00ff);
+            color: #fff;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(14, 14, 14, 0.6);
+            backdrop-filter: blur(10px);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .menu-icon { font-size: 2rem; cursor: pointer; }
+
+        /* --- Side Menu with Close Button --- */
+        .side-menu {
+            position: fixed; top: 0; right: -350px; width: 300px; height: 100vh;
+            background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(15px);
+            transition: right 0.4s ease-in-out; z-index: 200;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem; display: flex; flex-direction: column; align-items: center;
+        }
+        .side-menu.open { right: 0; }
+        .close-btn-side {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 2.5rem;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary-glow); margin-bottom: 1rem; }
+        #username-display { font-size: 1.2rem; font-weight: 700; word-break: break-all; }
+        #user-email-display { font-size: 0.8rem; color: #ccc; margin-bottom: 2rem; word-break: break-all; }
+        
+        /* --- Filters & Search --- */
+        .filters-container {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            align-items: center; gap: 1rem; margin-bottom: 2rem;
+        }
+        .filter-btn { background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; }
+        .filter-btn.active { background-color: var(--primary-glow); color: #0e0e0e; box-shadow: 0 0 10px var(--primary-glow); }
+        .search-bar { flex-grow: 1; min-width: 250px; }
+
+
+        /* --- Content Grid for Smaller Icons --- */
+        #content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .item-card {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            background-size: cover;
+            background-position: center;
+            border-radius: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .item-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px var(--primary-glow);
+        }
+
+        .item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(10, 10, 15, 1) 20%, rgba(10, 10, 15, 0));
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        
+        .item-card:hover .item-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .item-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 5px #000;
+        }
+
+        .item-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .rating .star {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.4);
+            transition: color 0.2s;
+            text-shadow: 0 1px 3px #000;
+        }
+        .rating .star:hover,
+        .rating .star.selected { color: #00ffff; }
+
+
+        /* --- Modals --- */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal.open { opacity: 1; visibility: visible; }
+        input, textarea, select { width: 100%; padding: 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; color: #fff; margin-bottom: 1rem; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary-glow); box-shadow: 0 0 10px var(--primary-glow); }
+
+        #submission-modal .modal-content { width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
+        #submission-modal .close-btn { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 1010; }
+        
+        #play-modal .modal-content {
+            width: 512px; height: 512px; max-width: 95vw; max-height: 95vw;
+            background: #000; padding: 0; overflow: hidden; border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2); position: relative;
+        }
+        #play-iframe { width: 100%; height: 100%; border: none; }
+        #play-modal .close-btn {
+            position: absolute; top: 10px; right: 15px; font-size: 2rem; color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 10px #000; cursor: pointer; z-index: 1010;
+        }
+        #notification-toast { position: fixed; bottom: 20px; right: 20px; padding: 1.5rem; z-index: 2000; display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">PlayXpress</div>
+        <div class="menu-icon" id="menu-toggle">☰</div>
+    </header>
+
+    <div class="side-menu" id="side-menu">
+        <span class="close-btn-side" id="close-side-menu">&times;</span>
+        <div class="profile-card glass-container" style="text-align: center;">
+            <img src="" alt="User Avatar" class="profile-avatar" id="avatar-img">
+            <h2 id="username-display"></h2>
+            <p id="user-email-display"></p>
+        </div>
+        <br>
+        <button class="btn btn-solid" id="open-submission-modal-btn" style="width: 100%;">Submit App/Game</button>
+    </div>
+
+    <main class="container">
+        <h1>Explore the Hub</h1>
+        <div class="filters-container">
+            <button class="btn filter-btn active" data-filter="All">All</button>
+            <button class="btn filter-btn" data-filter="Game">Games</button>
+            <button class="btn filter-btn" data-filter="App">Apps</button>
+            <input type="text" id="search-bar" class="search-bar" placeholder="Search by title...">
+        </div>
+        <div id="content-grid">
+            <!-- Icons injected here -->
+        </div>
+    </main>
+
+    <div id="submission-modal" class="modal">
+        <div class="modal-content glass-container">
+            <span class="close-btn" id="close-submission-modal">&times;</span>
+            <h2>Submit for Review</h2>
+            <form id="submission-form">
+                <label for="html-code">HTML Code</label>
+                <textarea id="html-code" required placeholder="Paste your full HTML code here..."></textarea>
+                <label for="title">Title</label>
+                <input type="text" id="title" required placeholder="e.g., Neon Runner">
+                <label for="logo-url">Logo URL</label>
+                <input type="url" id="logo-url" required placeholder="https://example.com/logo.png">
+                <label for="type">Type</label>
+                <select id="type" required>
+                    <option value="Game">Game</option>
+                    <option value="App">App</option>
+                </select>
+                <button type="submit" class="btn btn-solid" style="width: 100%;">Submit for Review</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="play-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-play-modal">&times;</span>
+            <iframe id="play-iframe" srcdoc=""></iframe>
+        </div>
+    </div>
+
+    <div id="notification-toast" class="glass-container">
+        <strong>New Notification!</strong>
+        <p id="notification-message"></p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <script>
+        // --- IMPORTANT: ”9æ7”9æ7PASTE YOUR FIREBASE”9æ7”9æ7 CONFIGURATION HERE ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // --- END OF FIREBASE CONFIGURATION ---
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        let allItems = [];
+        const contentGrid = document.getElementById('content-grid');
+        const searchBar = document.getElementById('search-bar');
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUserProfile();
+            fetchAndDisplayItems();
+            setupEventListeners();
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    auth.signInAnonymously().catch(error => console.error("Anonymous auth failed:", error));
+                } else {
+                    const userEmail = localStorage.getItem('userEmail');
+                    if (userEmail) listenForNotifications(userEmail);
+                }
+            });
+        });
+
+        function sanitizeEmail(email) {
+            return email.replace(/[.#$[\]]/g, "_");
+        }
+
+        function setupUserProfile() {
+            let userProfile = JSON.parse(localStorage.getItem('userProfile'));
+            if (!userProfile) {
+                const randomId = Math.random().toString(36).substring(2, 10);
+                userProfile = {
+                    username: `User-${randomId}`,
+                    avatar: `https://api.dicebear.com/8.x/bottts/svg?seed=${randomId}`,
+                    email: `anon_${randomId}@playxpress.temp` // Updated temp domain
+                };
+                localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                localStorage.setItem('userEmail', userProfile.email);
+            }
+            document.getElementById('avatar-img').src = userProfile.avatar;
+            document.getElementById('username-display').textContent = userProfile.username;
+            document.getElementById('user-email-display').textContent = userProfile.email;
+        }
+
+        function fetchAndDisplayItems() {
+            const itemsRef = database.ref('items');
+            itemsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                allItems = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                renderItems(allItems);
+            }, error => console.error("Firebase read failed: ", error));
+        }
+
+        function renderItems(itemsToRender) {
+            contentGrid.innerHTML = '';
+            if (itemsToRender.length === 0) {
+                 contentGrid.innerHTML = '<p>No items match your search or filter.</p>';
+                 return;
+            }
+            itemsToRender.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.style.backgroundImage = `url('${item.logoUrl}')`;
+                const encodedHtml = btoa(unescape(encodeURIComponent(item.htmlCode)));
+                card.innerHTML = `
+                    <div class="item-overlay">
+                        <h3 class="item-title">${item.title}</h3>
+                        <div class="item-actions">
+                            <button class="btn btn-outline play-btn" data-code="${encodedHtml}">Play</button>
+                            <div class="rating" data-item-id="${item.id}">${generateStars(item.id)}</div>
+                        </div>
+                    </div>`;
+                contentGrid.appendChild(card);
+            });
+            addCardEventListeners();
+        }
+
+        function generateStars(itemId) {
+            const ratedItems = JSON.parse(localStorage.getItem('ratedItems')) || {};
+            const isRated = !!ratedItems[itemId];
+            const style = isRated ? 'style="cursor: not-allowed;"' : '';
+            let starsHtml = '';
+            for (let i = 5; i >= 1; i--) {
+                starsHtml += `<span class="star" data-value="${i}" ${style}>★</span>`;
+            }
+            return starsHtml;
+        }
+
+        function setupEventListeners() {
+            const sideMenu = document.getElementById('side-menu');
+            document.getElementById('menu-toggle').addEventListener('click', () => sideMenu.classList.add('open'));
+            document.getElementById('close-side-menu').addEventListener('click', () => sideMenu.classList.remove('open'));
+
+            document.querySelector('.filters-container').addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    filterAndSearch();
+                }
+            });
+            searchBar.addEventListener('input', filterAndSearch);
+            const submissionModal = document.getElementById('submission-modal');
+            const playModal = document.getElementById('play-modal');
+            document.getElementById('open-submission-modal-btn').addEventListener('click', () => submissionModal.classList.add('open'));
+            document.getElementById('close-submission-modal').addEventListener('click', () => submissionModal.classList.remove('open'));
+            document.getElementById('close-play-modal').addEventListener('click', closePlayModal);
+            window.addEventListener('click', (e) => {
+                if (e.target === submissionModal) submissionModal.classList.remove('open');
+            });
+            document.getElementById('submission-form').addEventListener('submit', handleSubmission);
+        }
+
+        function addCardEventListeners() {
+            document.querySelectorAll('.play-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const encodedCode = e.currentTarget.dataset.code;
+                    const htmlCode = decodeURIComponent(escape(atob(encodedCode)));
+                    openPlayModal(htmlCode);
+                });
+            });
+            document.querySelectorAll('.rating .star').forEach(star => {
+                star.addEventListener('click', handleRating);
+            });
+        }
+        
+        function filterAndSearch() {
+            const filter = document.querySelector('.filter-btn.active').dataset.filter.toLowerCase();
+            const searchTerm = searchBar.value.toLowerCase();
+            let filteredItems = allItems.filter(item => 
+                item.title.toLowerCase().includes(searchTerm) && (filter === 'all' || item.type.toLowerCase() === filter)
+            );
+            renderItems(filteredItems);
+        }
+
+        function handleRating(e) {
+            const star = e.currentTarget;
+            const ratingContainer = star.parentElement;
+            const itemId = ratingContainer.dataset.itemId;
+            const ratedItems = JSON.parse(localStorage.getItem('ratedItems')) || {};
+            if (ratedItems[itemId]) return;
+            const ratingValue = parseInt(star.dataset.value, 10);
+            ratedItems[itemId] = true;
+            localStorage.setItem('ratedItems', JSON.stringify(ratedItems));
+            database.ref(`items/${itemId}`).transaction(item => {
+                if (item) {
+                    item.ratings = item.ratings || { sum: 0, count: 0 };
+                    item.ratings.sum += ratingValue;
+                    item.ratings.count += 1;
+                }
+                return item;
+            });
+            ratingContainer.querySelectorAll('.star').forEach(s => s.style.cursor = 'not-allowed');
+            alert(`Thank you for rating ${ratingValue} stars!`);
+        }
+        
+        function openPlayModal(htmlCode) {
+            const iframeStyle = `<style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}*{box-sizing:border-box;}</style>`;
+            document.getElementById('play-iframe').srcdoc = iframeStyle + htmlCode;
+            document.getElementById('play-modal').classList.add('open');
+        }
+
+        function closePlayModal() {
+            document.getElementById('play-iframe').srcdoc = '';
+            document.getElementById('play-modal').classList.remove('open')
+                    }
+
+        function handleSubmission(e) {
+            e.preventDefault();
+            const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+            if (!userProfile) { alert("User profile not found. Please refresh."); return; }
+            const submissionData = {
+                htmlCode: document.getElementById('html-code').value,
+                title: document.getElementById('title').value,
+                logoUrl: document.getElementById('logo-url').value,
+                type: document.getElementById('type').value,
+                submittedBy: userProfile,
+                status: 'pending',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            database.ref('pendingSubmissions').push(submissionData)
+                .then(() => {
+                    alert('Submission received and is pending review!');
+                    e.target.reset();
+                    document.getElementById('submission-modal').classList.remove('open');
+                })
+                .catch(error => console.error("Submission failed:", error));
+        }
+        
+        function listenForNotifications(userEmail) {
+            const sanitizedEmail = sanitizeEmail(userEmail);
+            const notificationsRef = database.ref(`notifications/${sanitizedEmail}`);
+            notificationsRef.on('child_added', (snapshot) => {
+                const notification = snapshot.val();
+                if (notification && notification.message) {
+                    showNotification(notification.message);
+                    snapshot.ref.remove();
+                }
+            });
+        }
+
+        function showNotification(message) {
+            const toast = document.getElementById('notification-toast');
+            document.getElementById('notification-message').textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 6000);
+        }
+    </script>
+</body>
+</html>
